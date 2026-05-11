@@ -1,0 +1,229 @@
+---
+import Hammer from '@lucide/astro/icons/hammer';
+import TrendingUp from '@lucide/astro/icons/trending-up';
+import Network from '@lucide/astro/icons/network';
+import ClipboardList from '@lucide/astro/icons/clipboard-list';
+import ChevronLeft from '@lucide/astro/icons/chevron-left';
+import ChevronRight from '@lucide/astro/icons/chevron-right';
+---
+<section class="services" id="services">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow center">Our Services</p>
+    </div>
+    <div class="carousel-3d">
+      <div class="carousel-stage">
+
+        <article class="service-card c-slide" data-index="0">
+          <div class="card-icon">
+            <Hammer aria-hidden="true" />
+          </div>
+          <h3>Renovation &amp;<br />Project Management</h3>
+          <p>Full oversight from planning to completion — on time, on budget.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+
+        <article class="service-card c-slide" data-index="1">
+          <div class="card-icon">
+            <TrendingUp aria-hidden="true" />
+          </div>
+          <h3>Property Optimization<br />Consulting</h3>
+          <p>Strategies designed to increase ROI and long-term asset value.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+
+        <article class="service-card c-slide" data-index="2">
+          <div class="card-icon">
+            <Network aria-hidden="true" />
+          </div>
+          <h3>Vendor &amp;<br />Maintenance Coordination</h3>
+          <p>Reliable execution through a trusted network of professionals.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+
+        <article class="service-card c-slide" data-index="3">
+          <div class="card-icon">
+            <ClipboardList aria-hidden="true" />
+          </div>
+          <h3>Owner<br />Support Systems</h3>
+          <p>Structured processes and reporting to simplify ownership.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+
+      </div>
+      <div class="carousel-nav">
+        <button class="carousel-btn carousel-prev" aria-label="Previous service">
+          <ChevronLeft aria-hidden="true" />
+        </button>
+        <div class="carousel-dots"></div>
+        <button class="carousel-btn carousel-next" aria-label="Next service">
+          <ChevronRight aria-hidden="true" />
+        </button>
+      </div>
+      <div class="carousel-progress"><div class="carousel-progress-bar"></div></div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import gsap from 'gsap';
+
+  (function () {
+    const stage = document.querySelector('.carousel-stage') as HTMLElement;
+    if (!stage) return;
+    const slides = Array.from(stage.querySelectorAll<HTMLElement>('.c-slide'));
+    const prevBtn = document.querySelector('.carousel-prev') as HTMLButtonElement;
+    const nextBtn = document.querySelector('.carousel-next') as HTMLButtonElement;
+    const dotsContainer = document.querySelector('.carousel-dots') as HTMLElement;
+    const total = slides.length;
+    let current = 0;
+    let touchStartX = 0;
+    let animating = false;
+    let autoTimer: ReturnType<typeof setTimeout> | null = null;
+    let progressAnim: gsap.core.Tween | null = null;
+    const AUTO_DELAY = 3200;
+    const progressBar = document.querySelector('.carousel-progress-bar') as HTMLElement;
+
+    type PosConfig = {
+      x: string; scale: number; rotateY: number; opacity: number;
+      filter: string; zIndex: number; pointerEvents: string; cursor: string;
+      boxShadow: string;
+    };
+
+    const CONFIGS: Record<number, PosConfig> = {
+      [-2]: { x: '-158%', scale: 0.62, rotateY: 54,  opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
+      [-1]: { x: '-70%',  scale: 0.83, rotateY: 33,  opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
+      [0]:  { x: '0%',   scale: 1,    rotateY: 0,   opacity: 1,    filter: 'none',                        zIndex: 3, pointerEvents: 'auto',  cursor: 'default', boxShadow: '0 0 90px rgba(200,162,93,0.26), 0 28px 56px rgba(0,0,0,0.6)' },
+      [1]:  { x: '70%',  scale: 0.83, rotateY: -33, opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
+      [2]:  { x: '158%', scale: 0.62, rotateY: -54, opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
+    };
+
+    function applyPos(slide: HTMLElement, pos: number, instant: boolean) {
+      const c = CONFIGS[pos];
+      if (!c) return;
+      slide.style.zIndex = String(c.zIndex);
+      slide.style.pointerEvents = c.pointerEvents;
+      slide.style.cursor = c.cursor;
+      if (instant) {
+        gsap.set(slide, { x: c.x, scale: c.scale, rotateY: c.rotateY, opacity: c.opacity, boxShadow: c.boxShadow });
+        slide.style.filter = c.filter;
+      } else {
+        gsap.to(slide, {
+          x: c.x, scale: c.scale, rotateY: c.rotateY,
+          opacity: c.opacity, boxShadow: c.boxShadow,
+          duration: 0.68,
+          ease: 'power3.inOut',
+          overwrite: 'auto',
+        });
+        gsap.to(slide, { filter: c.filter, duration: 0.68, ease: 'power2.inOut', overwrite: 'auto' });
+      }
+    }
+
+    function buildDots() {
+      dotsContainer.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === current ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function updateDots() {
+      dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+    }
+
+    function update(instant = false) {
+      slides.forEach((slide, i) => {
+        const pos = Math.max(-2, Math.min(2, i - current));
+        slide.setAttribute('data-pos', String(pos));
+        applyPos(slide, pos, instant);
+      });
+      updateDots();
+    }
+
+    function stopAuto() {
+      if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; }
+      if (progressAnim) { progressAnim.kill(); progressAnim = null; }
+      gsap.set(progressBar, { scaleX: 0 });
+    }
+
+    function startAuto() {
+      stopAuto();
+      gsap.set(progressBar, { scaleX: 0, transformOrigin: 'left center' });
+      progressAnim = gsap.to(progressBar, { scaleX: 1, duration: AUTO_DELAY / 1000, ease: 'none' });
+      autoTimer = setTimeout(() => {
+        const next = current < total - 1 ? current + 1 : 0;
+        goTo(next);
+        startAuto();
+      }, AUTO_DELAY);
+    }
+
+    function goTo(index: number, restartAuto = false) {
+      if (animating) return;
+      const next = ((index % total) + total) % total;
+      if (next === current) return;
+      animating = true;
+      current = next;
+      update();
+      setTimeout(() => { animating = false; }, 700);
+      if (restartAuto) startAuto();
+    }
+
+    const carousel3d = stage.closest('.carousel-3d') as HTMLElement;
+    carousel3d.addEventListener('mouseenter', stopAuto);
+    carousel3d.addEventListener('mouseleave', startAuto);
+
+    prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
+    nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
+
+    slides.forEach(slide => {
+      slide.addEventListener('click', () => {
+        const pos = parseInt(slide.getAttribute('data-pos') || '0');
+        if (pos === -1) { stopAuto(); goTo(current - 1); startAuto(); }
+        if (pos === 1)  { stopAuto(); goTo(current + 1); startAuto(); }
+      });
+    });
+
+    stage.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      stopAuto();
+    }, { passive: true });
+
+    stage.addEventListener('touchend', (e: TouchEvent) => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 44) goTo(diff > 0 ? current + 1 : current - 1);
+      startAuto();
+    }, { passive: true });
+
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft')  { stopAuto(); goTo(current - 1); startAuto(); }
+      if (e.key === 'ArrowRight') { stopAuto(); goTo(current + 1); startAuto(); }
+    });
+
+    update(true);
+    buildDots();
+
+    const entrance = gsap.timeline({
+      delay: 0.15,
+      onComplete: startAuto,
+    });
+    slides.forEach((slide, i) => {
+      const pos = Math.max(-2, Math.min(2, i - current));
+      const c = CONFIGS[pos];
+      gsap.set(slide, { opacity: 0, y: pos === 0 ? -28 : 18 });
+      entrance.to(slide, {
+        opacity: c.opacity,
+        y: 0,
+        duration: 0.7,
+        ease: 'power3.out',
+      }, i === 0 ? 0 : `-=0.52`);
+    });
+
+  })();
+</script>

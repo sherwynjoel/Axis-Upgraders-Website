@@ -1,0 +1,1883 @@
+# Axis Upgraders — Astro Port Implementation Plan
+
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+
+**Goal:** Port the existing single-file `index.html` Axis Upgraders site into an Astro project so content can later be driven by a PHP/cPanel CMS admin.
+
+**Architecture:** One Astro page (`src/pages/index.astro`) assembles standalone section components. All CSS lives in `src/styles/global.css` and is imported once in the base layout. The carousel JS is scoped to the Services component via Astro's `<script>` tag (bundled automatically). No framework (React/Vue) needed — plain Astro components only.
+
+**Tech Stack:** Astro 4.x, vanilla CSS, vanilla JS, Google Fonts (CDN), cPanel-compatible static output.
+
+---
+
+## File Map
+
+| Action | Path | Purpose |
+|--------|------|---------|
+| Create | `astro.config.mjs` | Astro config with static output |
+| Create | `package.json` | Project dependencies |
+| Copy | `public/logo.png` | Brand logo (from existing PNG) |
+| Create | `src/styles/global.css` | All CSS extracted from index.html |
+| Create | `src/layouts/Layout.astro` | Base HTML shell, fonts, SVG defs |
+| Create | `src/components/Nav.astro` | Navigation header |
+| Create | `src/components/Hero.astro` | Hero section with emblem |
+| Create | `src/components/TrustStrip.astro` | Four-column trust bar |
+| Create | `src/components/About.astro` | "Our Approach" positioning section |
+| Create | `src/components/Services.astro` | 3D carousel services section + JS |
+| Create | `src/components/Why.astro` | Why Axis split section |
+| Create | `src/components/Results.astro` | Four-column results bar |
+| Create | `src/components/Process.astro` | Four-step process section |
+| Create | `src/components/ServiceArea.astro` | GTA service area section |
+| Create | `src/components/CTA.astro` | Call-to-action banner |
+| Create | `src/components/Footer.astro` | Footer with columns |
+| Create | `src/pages/index.astro` | Page that assembles all components |
+
+---
+
+### Task 1: Scaffold the Astro project
+
+**Files:**
+- Create: `package.json`
+- Create: `astro.config.mjs`
+- Create: `tsconfig.json`
+
+- [ ] **Step 1: Initialize Astro**
+
+Run from `D:\arktech\Axis Upgraders`:
+
+```
+npm create astro@latest . -- --template minimal --no-install --no-git
+```
+
+Accept overwrite prompts. This writes `package.json`, `astro.config.mjs`, `tsconfig.json`, and the `src/` scaffold.
+
+- [ ] **Step 2: Install dependencies**
+
+```
+npm install
+```
+
+Expected: `node_modules/` created, no errors.
+
+- [ ] **Step 3: Verify dev server starts**
+
+```
+npm run dev
+```
+
+Expected: `http://localhost:4321` responds with an empty Astro page. Stop the server (`Ctrl+C`).
+
+- [ ] **Step 4: Commit**
+
+```
+git init
+git add package.json package-lock.json astro.config.mjs tsconfig.json
+git commit -m "chore: scaffold astro project"
+```
+
+---
+
+### Task 2: Copy logo and configure output
+
+**Files:**
+- Create: `public/logo.png` (copy of existing PNG)
+- Modify: `astro.config.mjs`
+
+- [ ] **Step 1: Copy logo to public/**
+
+```powershell
+Copy-Item "image_2026-05-01_220325152-removebg-preview.png" "public/logo.png"
+```
+
+- [ ] **Step 2: Set static output in astro.config.mjs**
+
+Replace the generated `astro.config.mjs` with:
+
+```js
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  output: 'static',
+});
+```
+
+- [ ] **Step 3: Commit**
+
+```
+git add public/logo.png astro.config.mjs
+git commit -m "chore: add logo asset and static output config"
+```
+
+---
+
+### Task 3: Extract CSS to global.css
+
+**Files:**
+- Create: `src/styles/global.css`
+
+- [ ] **Step 1: Create the CSS file**
+
+Create `src/styles/global.css` with the full CSS extracted from between `<style>` and `</style>` in `index.html`:
+
+```css
+:root {
+  --bg: #0b0908;
+  --bg-2: #11100d;
+  --panel: #151311;
+  --paper: #f6f1ea;
+  --paper-2: #fbf7f2;
+  --text: #f3eee7;
+  --text-soft: #d6ccbe;
+  --ink: #18140f;
+  --ink-soft: #4d463d;
+  --gold: #c8a25d;
+  --gold-soft: #e6c98f;
+  --line: rgba(200, 162, 93, 0.28);
+  --line-soft: rgba(200, 162, 93, 0.14);
+  --container: 1400px;
+  --pad-x: clamp(16px, 2.5vw, 32px);
+  --pad-y: clamp(28px, 4vw, 48px);
+  --hero-top: clamp(20px, 3vw, 36px);
+}
+
+* { box-sizing: border-box; }
+
+html {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-width: 320px;
+  overflow-x: clip;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Manrope", sans-serif;
+}
+
+a { color: inherit; text-decoration: none; }
+
+img, svg { display: block; max-width: 100%; }
+
+.site {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  background: var(--bg);
+}
+
+.container {
+  width: min(100%, var(--container));
+  margin: 0 auto;
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.eyebrow.center::before,
+.eyebrow.center::after {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: rgba(200, 162, 93, 0.5);
+}
+
+h1, h2, h3 {
+  margin: 0;
+  font-family: "Cormorant Garamond", serif;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+p { margin: 0; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 164px;
+  min-height: 44px;
+  padding: 0 18px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  color: #120e08;
+  background: linear-gradient(180deg, #e5cb90 0%, #ca9f55 60%, #986c2b 100%);
+  box-shadow: 0 0 22px rgba(200, 162, 93, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+  transition: box-shadow 0.25s ease;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 40px rgba(200, 162, 93, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+}
+
+.btn-secondary {
+  color: var(--text);
+  border: 1px solid rgba(200, 162, 93, 0.58);
+  background: rgba(255, 255, 255, 0.02);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.btn-secondary:hover {
+  border-color: rgba(200, 162, 93, 0.9);
+  box-shadow: 0 0 18px rgba(200, 162, 93, 0.25);
+}
+
+/* ── Hero ── */
+.hero {
+  width: 100%;
+  border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 72% 55%, rgba(200, 162, 93, 0.11) 0%, transparent 48%),
+    linear-gradient(90deg, rgba(11,9,8,0.95) 0%, rgba(11,9,8,0.9) 40%, rgba(11,9,8,0.45) 72%, rgba(11,9,8,0.28) 100%),
+    url("https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1800&q=80") center/cover;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 64px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.brand { display: flex; align-items: center; gap: 12px; flex: none; }
+
+.brand-mark {
+  height: 40px;
+  width: auto;
+  display: block;
+  flex: none;
+  filter: drop-shadow(0 0 10px rgba(200, 162, 93, 0.5));
+}
+
+.brand-copy { line-height: 0.92; }
+
+.brand-copy strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.38em;
+}
+
+.brand-copy span {
+  display: block;
+  margin-top: 4px;
+  color: var(--gold-soft);
+  font-size: 0.38rem;
+  font-weight: 700;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.nav-links a { position: relative; padding: 2px 0; }
+.nav-links a.active { color: var(--gold-soft); }
+.nav-links a.active::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -20px;
+  height: 2px;
+  background: var(--gold);
+}
+
+.nav-cta {
+  flex: none;
+  padding: 11px 16px;
+  border: 1px solid rgba(200, 162, 93, 0.58);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.nav-cta:hover {
+  border-color: rgba(200, 162, 93, 0.9);
+  box-shadow: 0 0 16px rgba(200, 162, 93, 0.35);
+}
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  align-items: center;
+  gap: clamp(24px, 3vw, 44px);
+  min-height: calc(100svh - 64px - 130px);
+  padding: var(--hero-top) 0 12px;
+}
+
+.hero-copy { max-width: 520px; }
+
+.hero-copy h1 {
+  font-size: clamp(2.4rem, 4vw, 4rem);
+  line-height: 0.95;
+  margin-bottom: 12px;
+}
+
+.hero-copy .lead {
+  max-width: 440px;
+  color: #efe6da;
+  font-size: 0.86rem;
+  line-height: 1.58;
+}
+
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+
+.hero-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: #efe6da;
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.hero-note svg {
+  width: 16px; height: 16px; flex: none;
+  stroke: var(--gold); fill: none;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.hero-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.axis-emblem {
+  text-align: center;
+  filter:
+    drop-shadow(0 0 60px rgba(200, 162, 93, 0.55))
+    drop-shadow(0 0 120px rgba(200, 162, 93, 0.28))
+    drop-shadow(0 16px 40px rgba(0, 0, 0, 0.5));
+}
+
+.axis-emblem .letter {
+  height: clamp(260px, 36vw, 380px);
+  width: auto;
+  margin: 0 auto 4px;
+}
+
+.axis-emblem .name {
+  margin-left: 0.72em;
+  color: #dcb56f;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(0.92rem, 1.45vw, 1.12rem);
+  letter-spacing: 0.72em;
+  text-transform: uppercase;
+}
+
+.axis-emblem .sub {
+  margin-top: 4px;
+  margin-left: 0.5em;
+  color: #f0debb;
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(0.66rem, 1vw, 0.82rem);
+  letter-spacing: 0.44em;
+  text-transform: uppercase;
+}
+
+/* ── Trust Strip ── */
+.trust-strip {
+  border-bottom: 1px solid var(--line);
+  background: #111110;
+}
+
+.trust-strip .container {
+  width: 100%; max-width: none;
+  padding-left: 0; padding-right: 0;
+}
+
+.trust-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  min-height: 130px;
+}
+
+.trust-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 130px;
+  padding: 12px 14px 10px;
+  text-align: center;
+  border-right: 1px solid var(--line);
+}
+
+.trust-item:last-child { border-right: 0; }
+
+.trust-item svg,
+.service-card svg,
+.result-item svg,
+.cta-badge svg,
+.footer-contact svg {
+  width: 28px; height: 28px;
+  margin: 0 auto 8px;
+  stroke: var(--gold); fill: none;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+
+.trust-item svg,
+.result-item svg {
+  filter: drop-shadow(0 0 7px rgba(200, 162, 93, 0.65));
+}
+
+.trust-item svg {
+  width: 40px; height: 40px;
+  stroke-width: 2.0;
+  stroke: url(#goldGrad) var(--gold);
+}
+
+.why-list svg {
+  filter: drop-shadow(0 0 6px rgba(200, 162, 93, 0.6));
+}
+
+.trust-item strong,
+.result-item strong {
+  display: block;
+  max-width: 160px;
+  margin: 0 auto;
+  font-size: 0.76rem;
+  line-height: 1.28;
+  font-weight: 500;
+}
+
+/* ── Sections ── */
+.section-light,
+.results {
+  background: var(--paper);
+  color: var(--ink);
+  border-bottom: 1px solid #e7decf;
+}
+
+.section-light .container,
+.results .container,
+.process .container,
+.services .container {
+  padding-top: var(--pad-y);
+  padding-bottom: var(--pad-y);
+}
+
+.positioning { text-align: center; }
+
+.positioning h2,
+.why-copy h2,
+.process h2,
+.area-copy h2,
+.cta-copy h2 {
+  font-size: clamp(2.2rem, 3.6vw, 3.8rem);
+  line-height: 0.95;
+}
+
+.positioning p:last-child {
+  max-width: 620px;
+  margin: 12px auto 0;
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.68;
+  font-weight: 500;
+}
+
+/* ── Viewport block (About + Services fill one screen) ── */
+.viewport-block {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+
+.viewport-block .services { flex: 1; display: flex; flex-direction: column; }
+.viewport-block .services .container { flex: 1; display: flex; flex-direction: column; }
+.viewport-block .services .carousel-3d { flex: 1; display: flex; flex-direction: column; }
+.viewport-block .services .service-card { min-height: unset; height: 100%; }
+
+/* ── 3D Carousel ── */
+.carousel-3d { position: relative; overflow: hidden; }
+
+.carousel-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  perspective: 1100px;
+}
+
+.c-slide {
+  position: absolute;
+  width: 36%;
+  max-width: 420px;
+  transition:
+    transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    opacity   0.55s ease,
+    filter    0.55s ease;
+  will-change: transform, opacity, filter;
+}
+
+.c-slide[data-pos="0"] {
+  transform: translateX(0) scale(1) rotateY(0deg);
+  opacity: 1; filter: none; z-index: 3; cursor: default;
+  box-shadow: 0 0 60px rgba(200, 162, 93, 0.18);
+}
+
+.c-slide[data-pos="-1"] {
+  transform: translateX(-108%) scale(0.74) rotateY(14deg);
+  opacity: 0.42; filter: blur(2px) brightness(0.65); z-index: 2; cursor: pointer;
+}
+
+.c-slide[data-pos="1"] {
+  transform: translateX(108%) scale(0.74) rotateY(-14deg);
+  opacity: 0.42; filter: blur(2px) brightness(0.65); z-index: 2; cursor: pointer;
+}
+
+.c-slide[data-pos="-2"] {
+  transform: translateX(-260%) scale(0.55) rotateY(22deg);
+  opacity: 0; filter: blur(4px); z-index: 1; pointer-events: none;
+}
+
+.c-slide[data-pos="2"] {
+  transform: translateX(260%) scale(0.55) rotateY(-22deg);
+  opacity: 0; filter: blur(4px); z-index: 1; pointer-events: none;
+}
+
+.carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 14px var(--pad-x) 18px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.carousel-btn {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(200, 162, 93, 0.55);
+  background: none; cursor: pointer; flex: none;
+  transition: box-shadow 0.22s ease, border-color 0.22s ease;
+}
+
+.carousel-btn:hover {
+  border-color: rgba(200, 162, 93, 0.9);
+  box-shadow: 0 0 14px rgba(200, 162, 93, 0.38);
+}
+
+.carousel-btn:disabled { opacity: 0.28; cursor: default; pointer-events: none; }
+
+.carousel-btn svg {
+  width: 14px; height: 14px;
+  stroke: var(--gold); fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+  margin: 0;
+}
+
+.carousel-dots { display: flex; gap: 10px; align-items: center; }
+
+.carousel-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: rgba(200, 162, 93, 0.28);
+  border: none; padding: 0; cursor: pointer;
+  transition: background 0.22s, transform 0.22s, box-shadow 0.22s;
+}
+
+.carousel-dot.active {
+  background: var(--gold);
+  transform: scale(1.5);
+  box-shadow: 0 0 8px rgba(200, 162, 93, 0.6);
+}
+
+/* ── Services ── */
+.services {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.section-head { margin-bottom: 18px; text-align: center; }
+
+.process .section-head,
+.results .section-head {
+  padding-left: var(--pad-x);
+  padding-right: var(--pad-x);
+}
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.service-card {
+  min-height: 214px;
+  padding: 22px 18px 18px;
+  border: 1px solid rgba(200, 162, 93, 0.34);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  text-align: center;
+  transition: border-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+.service-card:hover {
+  border-color: rgba(200, 162, 93, 0.7);
+  box-shadow: 0 0 32px rgba(200, 162, 93, 0.14), inset 0 0 40px rgba(200, 162, 93, 0.04);
+}
+
+.service-card:hover svg {
+  filter: drop-shadow(0 0 8px rgba(200, 162, 93, 0.75));
+}
+
+.service-card h3 {
+  margin-bottom: 10px;
+  font-family: "Manrope", sans-serif;
+  font-size: 0.94rem; line-height: 1.38; font-weight: 700;
+  color: var(--text);
+}
+
+.service-card p {
+  min-height: 52px;
+  color: var(--text-soft);
+  font-size: 0.8rem; line-height: 1.6;
+}
+
+.learn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  color: var(--gold);
+  font-size: 0.72rem; font-weight: 800;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+
+/* ── Why Axis ── */
+.why {
+  border-bottom: 1px solid var(--line);
+  background: #111110;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1.05fr;
+  align-items: stretch;
+}
+
+.why-image {
+  min-height: 340px;
+  background:
+    linear-gradient(180deg, rgba(15,12,9,0.08), rgba(15,12,9,0.18)),
+    url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80") center/cover;
+}
+
+.why-copy { padding: clamp(28px, 4vw, 44px); }
+
+.why-list {
+  list-style: none;
+  display: grid; gap: 10px;
+  padding: 0; margin: 18px 0 0;
+}
+
+.why-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #efe7da;
+  font-size: 0.9rem; font-weight: 500;
+}
+
+.why-list svg {
+  width: 18px; height: 18px; flex: none;
+  stroke: var(--gold); fill: none; stroke-width: 1.8;
+}
+
+/* ── Results ── */
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.result-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 22px 14px;
+  text-align: center;
+  border-right: 1px solid #dfd4c3;
+}
+
+.result-item:last-child { border-right: 0; }
+.result-item strong { color: var(--ink); }
+
+/* ── Process ── */
+.process {
+  border-bottom: 1px solid var(--line);
+  background: var(--bg);
+  text-align: center;
+}
+
+.process-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+  padding: 0 var(--pad-x);
+}
+
+.process-grid::before {
+  content: "";
+  position: absolute;
+  top: 19px;
+  left: calc(12.5% + 19px);
+  right: calc(12.5% + 19px);
+  border-top: 1px dashed rgba(200, 162, 93, 0.55);
+}
+
+.step { position: relative; z-index: 1; padding: 0 8px; }
+
+.step-number {
+  width: 38px; height: 38px;
+  margin: 0 auto 12px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(200, 162, 93, 0.85);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--gold-soft);
+  font-family: "Cormorant Garamond", serif;
+  font-size: 1.3rem; font-weight: 700;
+  box-shadow: 0 0 16px rgba(200,162,93,0.3), 0 0 32px rgba(200,162,93,0.12);
+}
+
+.step h3 {
+  margin-bottom: 8px;
+  font-family: "Manrope", sans-serif;
+  font-size: 0.92rem; line-height: 1.4; font-weight: 700;
+  color: var(--text);
+}
+
+.step p {
+  max-width: 180px; margin: 0 auto;
+  color: var(--text-soft);
+  font-size: 0.78rem; line-height: 1.58;
+}
+
+/* ── Service Area ── */
+.service-area {
+  background: var(--paper);
+  color: var(--ink);
+  border-bottom: 1px solid #e3d7c6;
+}
+
+.area-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr 0.95fr;
+  align-items: stretch;
+  min-height: 136px;
+}
+
+.area-copy,
+.area-text {
+  padding: 24px clamp(20px, 3vw, 34px);
+  border-right: 1px solid #e5d9c9;
+}
+
+.area-text {
+  display: flex; align-items: center;
+  color: var(--ink-soft);
+  font-size: 0.84rem; line-height: 1.68; font-weight: 500;
+}
+
+.area-image {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.04)),
+    url("https://images.unsplash.com/photo-1517935706615-2717063c2225?auto=format&fit=crop&w=1200&q=80") center/cover;
+}
+
+/* ── CTA ── */
+.cta {
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(17,14,11,0.98), rgba(10,10,9,0.98)),
+    radial-gradient(circle at top right, rgba(200,162,93,0.16), transparent 32%);
+}
+
+.why .container,
+.service-area .container,
+.cta .container,
+.results .container,
+.process .container,
+.footer .container {
+  width: 100%; max-width: none;
+  padding-left: 0; padding-right: 0;
+}
+
+.cta-grid {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 26px;
+  width: 100%;
+  padding: clamp(24px, 4vw, 34px) var(--pad-x);
+  position: relative;
+}
+
+.cta-grid::after {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(125deg, transparent 66%, rgba(200,162,93,0.08) 66.5%, transparent 67.5%),
+    linear-gradient(125deg, transparent 76%, rgba(200,162,93,0.08) 76.5%, transparent 77.5%);
+  pointer-events: none;
+}
+
+.cta-badge {
+  width: 60px; height: 60px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(200, 162, 93, 0.54);
+  transform: rotate(45deg); flex: none;
+  box-shadow: 0 0 22px rgba(200,162,93,0.32), 0 0 48px rgba(200,162,93,0.14);
+}
+
+.cta-badge svg { margin: 0; transform: rotate(-45deg); }
+
+.cta-copy p {
+  max-width: 360px; margin-top: 10px;
+  color: #dbd1c3;
+  font-size: 0.86rem; line-height: 1.62;
+}
+
+.cta-actions { display: flex; gap: 16px; position: relative; z-index: 1; }
+
+/* ── Footer ── */
+.footer { background: #111110; }
+
+.footer-main {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.1fr;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-col {
+  padding: 22px 24px 18px;
+  border-right: 1px solid rgba(200, 162, 93, 0.22);
+}
+
+.footer-col:last-child { border-right: 0; }
+
+.footer-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.footer-brand .brand-mark { height: 50px; }
+
+.footer-tagline {
+  color: #eee4d7;
+  font-size: 0.84rem; line-height: 1.75;
+  margin-bottom: 12px;
+}
+
+.socials { display: flex; gap: 10px; }
+
+.social {
+  width: 26px; height: 26px;
+  display: grid; place-items: center;
+  border: 1px solid rgba(200, 162, 93, 0.5);
+  border-radius: 50%;
+  color: var(--gold);
+  font-size: 0.72rem; font-weight: 800;
+}
+
+.footer-title {
+  margin-bottom: 12px;
+  color: var(--text);
+  font-size: 0.82rem; font-weight: 800;
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+
+.footer-list,
+.footer-area,
+.footer-contact {
+  display: grid; gap: 9px;
+  color: #efe6da;
+  font-size: 0.82rem; line-height: 1.48;
+}
+
+.footer-contact span { display: flex; align-items: center; gap: 8px; }
+
+.footer-contact svg { width: 16px; height: 16px; margin: 0; flex: none; }
+
+.footer-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px; align-items: start;
+  padding: 12px var(--pad-x) 18px;
+  color: #ddcfbf;
+  font-size: 0.7rem; line-height: 1.65;
+}
+
+.footer-bottom p:last-child { max-width: 420px; text-align: right; }
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .hero-grid, .why-grid, .area-grid, .cta-grid, .footer-main {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-grid { min-height: auto; padding-bottom: 18px; }
+  .hero-visual { min-height: 220px; }
+
+  .area-copy, .area-text, .footer-col { border-right: 0; }
+
+  .footer-col { border-bottom: 1px solid rgba(200, 162, 93, 0.16); }
+  .footer-col:last-child { border-bottom: 0; }
+
+  .footer-bottom { grid-template-columns: 1fr; }
+  .footer-bottom p:last-child { max-width: none; text-align: left; }
+}
+
+@media (max-width: 900px) {
+  .nav { padding: 14px 0; align-items: flex-start; flex-wrap: wrap; }
+  .nav-links { width: 100%; justify-content: flex-start; gap: 14px 18px; }
+  .nav-links a.active::after { bottom: -8px; }
+
+  .trust-grid, .results-grid, .service-grid, .process-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-copy h1,
+  .positioning h2,
+  .why-copy h2,
+  .process h2,
+  .area-copy h2,
+  .cta-copy h2 { font-size: 2.3rem; }
+
+  .hero-actions, .cta-actions { display: grid; width: 100%; }
+  .btn { width: 100%; }
+
+  .trust-grid, .results-grid, .service-grid, .process-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trust-item, .result-item {
+    border-right: 0;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .trust-item:last-child, .result-item:last-child { border-bottom: 0; }
+  .process-grid::before { display: none; }
+}
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/styles/global.css
+git commit -m "feat: extract all CSS to global.css"
+```
+
+---
+
+### Task 4: Create Layout.astro
+
+**Files:**
+- Create: `src/layouts/Layout.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/layouts/Layout.astro`:
+
+```astro
+---
+export interface Props {
+  title?: string;
+}
+const { title = 'Axis Upgraders' } = Astro.props;
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- SVG gradient defs used by trust strip icons -->
+  <svg aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+    <defs>
+      <linearGradient id="goldGrad" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0%" stop-color="#986c2b"/>
+        <stop offset="45%" stop-color="#ca9f55"/>
+        <stop offset="100%" stop-color="#e5cb90"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <slot />
+</body>
+</html>
+
+<style is:global>
+  @import '../styles/global.css';
+</style>
+```
+
+- [ ] **Step 2: Verify dev server still starts**
+
+```
+npm run dev
+```
+
+Expected: no build errors. Stop the server.
+
+- [ ] **Step 3: Commit**
+
+```
+git add src/layouts/Layout.astro
+git commit -m "feat: add base Layout with fonts and SVG defs"
+```
+
+---
+
+### Task 5: Create Nav.astro
+
+**Files:**
+- Create: `src/components/Nav.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Nav.astro`:
+
+```astro
+---
+---
+<header class="nav">
+  <a class="brand" href="#home" aria-label="Axis Upgraders home">
+    <img class="brand-mark" src="/logo.png" alt="Axis Upgraders" />
+    <span class="brand-copy">
+      <strong>AXIS</strong>
+      <span>Upgraders</span>
+    </span>
+  </a>
+
+  <nav class="nav-links" aria-label="Primary">
+    <a class="active" href="#home">Home</a>
+    <a href="#about">About Us</a>
+    <a href="#about">Services</a>
+    <a href="#why-axis">Why Axis</a>
+    <a href="#process">Process</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <a class="nav-cta" href="#consult">Book Consultation</a>
+</header>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Nav.astro
+git commit -m "feat: Nav component"
+```
+
+---
+
+### Task 6: Create Hero.astro
+
+**Files:**
+- Create: `src/components/Hero.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Hero.astro`:
+
+```astro
+---
+import Nav from './Nav.astro';
+---
+<section class="hero" id="home">
+  <div class="container">
+    <Nav />
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Strategy. Execution. Elevation.</p>
+        <h1>Transform Your Property Into a High-Performance Asset</h1>
+        <p class="lead">Strategic consulting, renovation management, and property optimization for owners who want better returns and higher value.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#consult">Book Consultation <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn btn-secondary" href="#about">View Services</a>
+        </div>
+        <div class="hero-note">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h16v10H4z"></path>
+            <path d="M8 7V5h8v2"></path>
+            <path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path>
+          </svg>
+          <span>We don't manage properties. We upgrade their performance.</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="axis-emblem">
+          <img class="letter" src="/logo.png" alt="" />
+          <div class="name">AXIS</div>
+          <div class="sub">UPGRADERS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Hero.astro
+git commit -m "feat: Hero component"
+```
+
+---
+
+### Task 7: Create TrustStrip.astro
+
+**Files:**
+- Create: `src/components/TrustStrip.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/TrustStrip.astro`:
+
+```astro
+---
+---
+<section class="trust-strip">
+  <div class="container">
+    <div class="trust-grid">
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11Z"></path>
+          <circle cx="12" cy="10" r="2.5"></circle>
+        </svg>
+        <strong>Serving<br />Greater Toronto Area</strong>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20V8l8-4 8 4v12Z"></path>
+          <path d="M9 20v-5h6v5"></path>
+          <path d="M9 10h1M14 10h1M9 13h1M14 13h1"></path>
+        </svg>
+        <strong>Residential &amp;<br />Investment Properties</strong>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m7 7 10 10"></path>
+          <path d="M14 4h6v6"></path>
+          <path d="M4 14h6v6"></path>
+          <path d="m20 4-6 6"></path>
+          <path d="m10 14-6 6"></path>
+        </svg>
+        <strong>End-to-End<br />Project Oversight</strong>
+      </div>
+      <div class="trust-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 19V9"></path>
+          <path d="M10 19V5"></path>
+          <path d="M15 19v-8"></path>
+          <path d="M20 19V3"></path>
+          <path d="M3 19h18"></path>
+        </svg>
+        <strong>Results-Driven<br />Approach</strong>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/TrustStrip.astro
+git commit -m "feat: TrustStrip component"
+```
+
+---
+
+### Task 8: Create About.astro
+
+**Files:**
+- Create: `src/components/About.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/About.astro`:
+
+```astro
+---
+---
+<section class="section-light positioning" id="about">
+  <div class="container">
+    <p class="eyebrow center">Our Approach</p>
+    <h2>More Than Property Services &mdash;<br />We Build Value</h2>
+    <p>Axis Upgraders helps property owners unlock hidden potential through strategic planning, structured upgrades, and expert coordination. We focus on performance, not just maintenance.</p>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/About.astro
+git commit -m "feat: About component"
+```
+
+---
+
+### Task 9: Create Services.astro (with carousel JS)
+
+**Files:**
+- Create: `src/components/Services.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Services.astro`:
+
+```astro
+---
+---
+<section class="services" id="services">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow center">Our Services</p>
+    </div>
+    <div class="carousel-3d">
+      <div class="carousel-stage">
+        <article class="service-card c-slide" data-index="0">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 21h18"></path>
+            <path d="M5 21V8l4-2 4 2v13"></path>
+            <path d="M13 21V5h6v16"></path>
+            <path d="M8 10h2M8 13h2M16 8h2M16 11h2M16 14h2"></path>
+          </svg>
+          <h3>Renovation &amp;<br />Project Management</h3>
+          <p>Full oversight from planning to completion.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+        <article class="service-card c-slide" data-index="1">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 19h16"></path>
+            <path d="M7 16V12"></path>
+            <path d="M12 16V9"></path>
+            <path d="M17 16V6"></path>
+            <path d="m6 10 4-3 4 1 4-4"></path>
+            <path d="M16 4h3v3"></path>
+          </svg>
+          <h3>Property Optimization<br />Consulting</h3>
+          <p>Strategies designed to increase ROI and value.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+        <article class="service-card c-slide" data-index="2">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+            <path d="M16 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+            <path d="M12 18a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+            <path d="M4 20c0-2.2 1.8-4 4-4"></path>
+            <path d="M12 20c0-2.2 1.8-4 4-4"></path>
+            <path d="M8 8h8"></path>
+          </svg>
+          <h3>Vendor &amp;<br />Maintenance Coordination</h3>
+          <p>Reliable execution through trusted professionals.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+        <article class="service-card c-slide" data-index="3">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="5" y="4" width="14" height="16" rx="1.5"></rect>
+            <path d="M9 4.5h6"></path>
+            <path d="M8 10h8M8 13h8M8 16h5"></path>
+          </svg>
+          <h3>Owner<br />Support Systems</h3>
+          <p>Structured processes to simplify ownership.</p>
+          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+        </article>
+      </div>
+      <div class="carousel-nav">
+        <button class="carousel-btn carousel-prev" aria-label="Previous service">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <div class="carousel-dots"></div>
+        <button class="carousel-btn carousel-next" aria-label="Next service">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const stage = document.querySelector('.carousel-stage');
+    if (!stage) return;
+    const slides = Array.from(stage.querySelectorAll('.c-slide'));
+    const prevBtn = document.querySelector('.carousel-prev') as HTMLButtonElement;
+    const nextBtn = document.querySelector('.carousel-next') as HTMLButtonElement;
+    const dotsContainer = document.querySelector('.carousel-dots') as HTMLElement;
+    const total = slides.length;
+    let current = 0;
+
+    function buildDots() {
+      dotsContainer.innerHTML = '';
+      for (var i = 0; i < total; i++) {
+        var dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === current ? ' active' : '');
+        dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+        (function (idx: number) {
+          dot.addEventListener('click', function () { goTo(idx); });
+        })(i);
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function update() {
+      slides.forEach(function (slide, i) {
+        var pos = i - current;
+        pos = Math.max(-2, Math.min(2, pos));
+        slide.setAttribute('data-pos', String(pos));
+      });
+      dotsContainer.querySelectorAll('.carousel-dot').forEach(function (d, i) {
+        d.classList.toggle('active', i === current);
+      });
+      prevBtn.disabled = current === 0;
+      nextBtn.disabled = current === total - 1;
+    }
+
+    function goTo(index: number) {
+      current = Math.max(0, Math.min(index, total - 1));
+      update();
+    }
+
+    prevBtn.addEventListener('click', function () { goTo(current - 1); });
+    nextBtn.addEventListener('click', function () { goTo(current + 1); });
+
+    slides.forEach(function (slide, i) {
+      slide.addEventListener('click', function () {
+        var pos = parseInt(slide.getAttribute('data-pos') || '0');
+        if (pos === -1) goTo(current - 1);
+        if (pos === 1) goTo(current + 1);
+      });
+    });
+
+    buildDots();
+    update();
+  })();
+</script>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Services.astro
+git commit -m "feat: Services component with 3D carousel"
+```
+
+---
+
+### Task 10: Create Why.astro
+
+**Files:**
+- Create: `src/components/Why.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Why.astro`:
+
+```astro
+---
+---
+<section class="why" id="why-axis">
+  <div class="container">
+    <div class="why-grid">
+      <div class="why-image" aria-hidden="true"></div>
+      <div class="why-copy">
+        <p class="eyebrow">Why Axis</p>
+        <h2>Why Property Owners<br />Choose Axis</h2>
+        <ul class="why-list">
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path></svg>
+            Strategy-Driven Approach
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path></svg>
+            Execution Without Stress
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path></svg>
+            ROI-Focused Decisions
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path></svg>
+            Trusted Vendor Network
+          </li>
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="m8.5 12.5 2.2 2.2 4.8-4.8"></path></svg>
+            Transparent Communication
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Why.astro
+git commit -m "feat: Why component"
+```
+
+---
+
+### Task 11: Create Results.astro
+
+**Files:**
+- Create: `src/components/Results.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Results.astro`:
+
+```astro
+---
+---
+<section class="results">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow center">Results That Matter</p>
+    </div>
+    <div class="results-grid">
+      <div class="result-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 20V10l7-5 7 5v10"></path>
+          <path d="M9 20v-5h6v5"></path>
+        </svg>
+        <strong>Increase<br />Property Value</strong>
+      </div>
+      <div class="result-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 20h16"></path>
+          <path d="M6 20V9l6-4 6 4v11"></path>
+          <path d="M10 20v-5h4v5"></path>
+        </svg>
+        <strong>Improve<br />Rental Appeal</strong>
+      </div>
+      <div class="result-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3.5"></circle>
+          <path d="M12 2v3M12 19v3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M2 12h3M19 12h3M4.9 19.1 7 17M17 7l2.1-2.1"></path>
+        </svg>
+        <strong>Reduce<br />Inefficiencies</strong>
+      </div>
+      <div class="result-item">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+          <path d="M16 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z"></path>
+          <path d="M6 20c0-2.2 1.8-4 4-4h4c2.2 0 4 1.8 4 4"></path>
+        </svg>
+        <strong>Structured Ownership<br />Experience</strong>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Results.astro
+git commit -m "feat: Results component"
+```
+
+---
+
+### Task 12: Create Process.astro
+
+**Files:**
+- Create: `src/components/Process.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Process.astro`:
+
+```astro
+---
+---
+<section class="process" id="process">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow center">Our Process</p>
+      <h2>A Simple, Structured Approach</h2>
+    </div>
+    <div class="process-grid">
+      <article class="step">
+        <div class="step-number">1</div>
+        <h3>Consultation &amp;<br />Assessment</h3>
+        <p>We understand your property and goals.</p>
+      </article>
+      <article class="step">
+        <div class="step-number">2</div>
+        <h3>Strategy &amp;<br />Planning</h3>
+        <p>We create a tailored plan designed for maximum value.</p>
+      </article>
+      <article class="step">
+        <div class="step-number">3</div>
+        <h3>Execution &amp;<br />Coordination</h3>
+        <p>We manage every detail with expert oversight.</p>
+      </article>
+      <article class="step">
+        <div class="step-number">4</div>
+        <h3>Ongoing<br />Optimization</h3>
+        <p>We continuously refine to improve performance.</p>
+      </article>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Process.astro
+git commit -m "feat: Process component"
+```
+
+---
+
+### Task 13: Create ServiceArea.astro
+
+**Files:**
+- Create: `src/components/ServiceArea.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/ServiceArea.astro`:
+
+```astro
+---
+---
+<section class="service-area">
+  <div class="container">
+    <div class="area-grid">
+      <div class="area-copy">
+        <p class="eyebrow">Service Area</p>
+        <h2>Serving the Greater<br />Toronto Area</h2>
+      </div>
+      <div class="area-text">
+        <p>We work with property owners across Toronto and surrounding areas, delivering tailored solutions based on local market dynamics.</p>
+      </div>
+      <div class="area-image" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/ServiceArea.astro
+git commit -m "feat: ServiceArea component"
+```
+
+---
+
+### Task 14: Create CTA.astro
+
+**Files:**
+- Create: `src/components/CTA.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/CTA.astro`:
+
+```astro
+---
+---
+<section class="cta" id="consult">
+  <div class="container">
+    <div class="cta-grid">
+      <div class="cta-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <path d="M14 4h6v6"></path>
+          <path d="m10 14 10-10"></path>
+          <path d="M13 4H7a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6"></path>
+        </svg>
+      </div>
+      <div class="cta-copy">
+        <h2>Ready to Elevate<br />Your Property?</h2>
+        <p>Book a consultation and discover how we can improve your property's performance and value.</p>
+      </div>
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="tel:4373415981">Book Now <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-secondary" href="tel:4373415981">Call 437-341-5981</a>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/CTA.astro
+git commit -m "feat: CTA component"
+```
+
+---
+
+### Task 15: Create Footer.astro
+
+**Files:**
+- Create: `src/components/Footer.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/components/Footer.astro`:
+
+```astro
+---
+---
+<footer class="footer" id="contact">
+  <div class="container">
+    <div class="footer-main">
+      <div class="footer-col">
+        <div class="footer-brand">
+          <img class="brand-mark" src="/logo.png" alt="" />
+          <span class="brand-copy">
+            <strong>AXIS</strong>
+            <span>Upgraders</span>
+          </span>
+        </div>
+        <div class="footer-tagline">Consult. Plan.<br />Upgrade. Elevate.</div>
+        <div class="socials" aria-label="Social links">
+          <span class="social">in</span>
+          <span class="social">ig</span>
+          <span class="social">f</span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-title">Quick Links</div>
+        <div class="footer-list">
+          <a href="#about">About Us</a>
+          <a href="#about">Services</a>
+          <a href="#why-axis">Why Axis</a>
+          <a href="#process">Process</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-title">Contact</div>
+        <div class="footer-contact">
+          <span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M22 16.9v3a2 2 0 0 1-2.2 2A19.8 19.8 0 0 1 11.2 19a19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7l.5 3.6a2 2 0 0 1-.6 1.8l-1.6 1.6a16 16 0 0 0 6 6l1.6-1.6a2 2 0 0 1 1.8-.6l3.6.5A2 2 0 0 1 22 16.9Z"></path>
+            </svg>
+            <a href="tel:4373415981">437-341-5981</a>
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 5h16v14H4z"></path>
+              <path d="m4 7 8 6 8-6"></path>
+            </svg>
+            <a href="mailto:axisupgraders@gmail.com">axisupgraders@gmail.com</a>
+          </span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-title">Service Area</div>
+        <div class="footer-area">Greater Toronto Area<br />and surrounding areas</div>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2026 Axis Upgraders. All Rights Reserved.</p>
+      <p>Axis Upgraders provides consulting, coordination, and project management services only. We do not engage in leasing, rent collection, property management, or regulated real estate activities under Ontario law.</p>
+    </div>
+  </div>
+</footer>
+```
+
+- [ ] **Step 2: Commit**
+
+```
+git add src/components/Footer.astro
+git commit -m "feat: Footer component"
+```
+
+---
+
+### Task 16: Assemble index.astro
+
+**Files:**
+- Create: `src/pages/index.astro`
+
+- [ ] **Step 1: Create the file**
+
+Create `src/pages/index.astro`:
+
+```astro
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import TrustStrip from '../components/TrustStrip.astro';
+import About from '../components/About.astro';
+import Services from '../components/Services.astro';
+import Why from '../components/Why.astro';
+import Results from '../components/Results.astro';
+import Process from '../components/Process.astro';
+import ServiceArea from '../components/ServiceArea.astro';
+import CTA from '../components/CTA.astro';
+import Footer from '../components/Footer.astro';
+---
+<Layout title="Axis Upgraders">
+  <main class="site">
+    <Hero />
+    <TrustStrip />
+    <div class="viewport-block">
+      <About />
+      <Services />
+    </div>
+    <Why />
+    <Results />
+    <Process />
+    <ServiceArea />
+    <CTA />
+    <Footer />
+  </main>
+</Layout>
+```
+
+- [ ] **Step 2: Start dev server and visually verify**
+
+```
+npm run dev
+```
+
+Open `http://localhost:4321` in a browser. Check:
+- Logo appears in nav and hero emblem
+- Trust strip shows 4 columns with gold icons
+- About + Services fill one viewport (no scroll needed to see both)
+- 3D carousel works: clicking prev/next moves cards, dots update
+- Why Axis section has background image on left
+- Results shows 4 columns on light background
+- Process shows 4 steps with dashed connector line
+- Footer shows 4-column grid
+- No console errors
+
+Stop the server.
+
+- [ ] **Step 3: Commit**
+
+```
+git add src/pages/index.astro
+git commit -m "feat: assemble index page from all components"
+```
+
+---
+
+### Task 17: Production build and verify
+
+**Files:**
+- Verify: `dist/` output
+
+- [ ] **Step 1: Run production build**
+
+```
+npm run build
+```
+
+Expected output:
+```
+✓ Built in X.XXs
+dist/
+  index.html
+  _astro/
+  logo.png
+```
+
+No errors. If TypeScript errors appear in the carousel script, cast the querySelector results as shown in Task 9.
+
+- [ ] **Step 2: Preview the production build**
+
+```
+npm run preview
+```
+
+Open `http://localhost:4321`. Verify the same checks from Task 16 Step 2 pass against the built output. Stop the server.
+
+- [ ] **Step 3: Final commit**
+
+```
+git add dist/
+git commit -m "chore: add production build output"
+```
+
+> **Note for cPanel deployment:** Upload the entire `dist/` folder contents to your `public_html` directory. The site is fully static — no Node.js required on the server.
+
+---
+
+## Self-Review
+
+**Spec coverage:**
+- ✅ All 11 sections from index.html have a corresponding component
+- ✅ Logo used in Nav, Hero emblem, Footer brand-mark — all pointing to `/logo.png`
+- ✅ 3D carousel JS preserved verbatim in Services.astro `<script>` block
+- ✅ `viewport-block` wrapping About + Services preserved in index.astro
+- ✅ SVG gradient defs (`#goldGrad`) in Layout.astro body — available to all components
+- ✅ All CSS custom properties, responsive breakpoints, and full-width container overrides in global.css
+- ✅ Static output configured in astro.config.mjs for cPanel compatibility
+
+**Placeholder scan:** No TBDs, TODOs, or "similar to task N" references. Every step has actual code.
+
+**Type consistency:**
+- `carousel-stage` → `.carousel-stage` (Tasks 9, CSS) ✅
+- `c-slide` / `data-pos` → used in CSS and JS ✅  
+- `brand-mark` → used in Nav, Hero, Footer with same class ✅
+- `viewport-block` → wraps About + Services in index.astro ✅

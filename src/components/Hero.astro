@@ -1,0 +1,33 @@
+---
+import Nav from './Nav.astro';
+import BadgeCheck from '@lucide/astro/icons/badge-check';
+---
+<section class="hero" id="home">
+  <div class="container">
+    <Nav />
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow">Strategy. Execution. Elevation.</p>
+        <h1>Transform Your Property Into a High-Performance Asset</h1>
+        <p class="lead">Strategic consulting, renovation management, and property optimization for owners who want better returns and higher value.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#consult">Book Consultation <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn btn-secondary" href="#about">View Services</a>
+        </div>
+        <div class="hero-note">
+          <BadgeCheck aria-hidden="true" />
+          <span>We don't manage properties. We upgrade their performance.</span>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="axis-emblem">
+          <img class="letter" src="/logo.png" alt="" />
+          <div class="name">AXIS</div>
+          <div class="sub">UPGRADERS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

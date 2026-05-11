@@ -1,0 +1,31 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Hero from '../components/Hero.astro';
+import TrustStrip from '../components/TrustStrip.astro';
+import About from '../components/About.astro';
+import Services from '../components/Services.astro';
+import Why from '../components/Why.astro';
+import Results from '../components/Results.astro';
+import Process from '../components/Process.astro';
+import ServiceArea from '../components/ServiceArea.astro';
+import CTA from '../components/CTA.astro';
+import Footer from '../components/Footer.astro';
+---
+<Layout title="Axis Upgraders">
+  <main class="site">
+    <Hero />
+    <TrustStrip />
+    <div class="viewport-block">
+      <About />
+      <Services />
+    </div>
+    <div class="viewport-block">
+      <Why />
+      <Results />
+    </div>
+    <Process />
+    <ServiceArea />
+    <CTA />
+    <Footer />
+  </main>
+</Layout>
