@@ -5,50 +5,38 @@ import Network from '@lucide/astro/icons/network';
 import ClipboardList from '@lucide/astro/icons/clipboard-list';
 import ChevronLeft from '@lucide/astro/icons/chevron-left';
 import ChevronRight from '@lucide/astro/icons/chevron-right';
+import { getContent } from '../utils/content';
+
+const { services } = getContent();
+
+const iconMap = {
+  Hammer,
+  TrendingUp,
+  Network,
+  ClipboardList
+};
 ---
 <section class="services" id="services">
   <div class="container">
     <div class="section-head">
-      <p class="eyebrow center">Our Services</p>
+      <p class="eyebrow center">{services.eyebrow}</p>
     </div>
     <div class="carousel-3d">
       <div class="carousel-stage">
 
-        <article class="service-card c-slide" data-index="0">
-          <div class="card-icon">
-            <Hammer aria-hidden="true" />
-          </div>
-          <h3>Renovation &amp;<br />Project Management</h3>
-          <p>Full oversight from planning to completion — on time, on budget.</p>
-          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
-        </article>
-
-        <article class="service-card c-slide" data-index="1">
-          <div class="card-icon">
-            <TrendingUp aria-hidden="true" />
-          </div>
-          <h3>Property Optimization<br />Consulting</h3>
-          <p>Strategies designed to increase ROI and long-term asset value.</p>
-          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
-        </article>
-
-        <article class="service-card c-slide" data-index="2">
-          <div class="card-icon">
-            <Network aria-hidden="true" />
-          </div>
-          <h3>Vendor &amp;<br />Maintenance Coordination</h3>
-          <p>Reliable execution through a trusted network of professionals.</p>
-          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
-        </article>
-
-        <article class="service-card c-slide" data-index="3">
-          <div class="card-icon">
-            <ClipboardList aria-hidden="true" />
-          </div>
-          <h3>Owner<br />Support Systems</h3>
-          <p>Structured processes and reporting to simplify ownership.</p>
-          <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
-        </article>
+        {services.items.map((item, index) => {
+          const Icon = iconMap[item.icon] || Hammer;
+          return (
+            <article class="service-card c-slide" data-index={index}>
+              <div class="card-icon">
+                <Icon aria-hidden="true" />
+              </div>
+              <h3 data-key={`services.items.${index}.title`} set:html={item.title.replace('\n', '<br />')} />
+              <p data-key={`services.items.${index}.description`}>{item.description}</p>
+              <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
+            </article>
+          );
+        })}
 
       </div>
       <div class="carousel-nav">

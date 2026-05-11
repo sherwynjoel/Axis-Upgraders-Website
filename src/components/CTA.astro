@@ -1,5 +1,7 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import { getContent } from '../utils/content';
+const { cta } = getContent();
 ---
 <section class="cta" id="consult">
   <div class="container">
@@ -8,12 +10,12 @@ import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
         <ArrowUpRight />
       </div>
       <div class="cta-copy">
-        <h2>Ready to Elevate<br />Your Property?</h2>
-        <p>Book a consultation and discover how we can improve your property's performance and value.</p>
+        <h2 data-key="cta.title" set:html={cta.title.replace(' ', '<br />')} />
+        <p data-key="cta.lead">{cta.lead}</p>
       </div>
       <div class="cta-actions">
-        <a class="btn btn-primary" href="tel:4373415981">Book Now <span aria-hidden="true">&rarr;</span></a>
-        <a class="btn btn-secondary" href="tel:4373415981">Call 437-341-5981</a>
+        <a class="btn btn-primary" href={cta.primary_button_link} data-key="cta.primary_button_text">{cta.primary_button_text} <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-secondary" href={cta.secondary_button_link} data-key="cta.secondary_button_text">{cta.secondary_button_text}</a>
       </div>
     </div>
   </div>

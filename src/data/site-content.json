@@ -1,0 +1,115 @@
+{
+  "hero": {
+    "eyebrow": "Strategy. Execution. Elevation.",
+    "title": "Transform Your Property Into a High-Performance Asset",
+    "lead": "Strategic consulting, renovation management, and property optimization for owners who want better returns and higher value.",
+    "cta_primary_text": "Book Consultation",
+    "cta_primary_link": "#consult",
+    "cta_secondary_text": "View Services",
+    "cta_secondary_link": "#about",
+    "note": "We don't manage properties. We upgrade their performance.",
+    "logo": "/logo.png"
+  },
+  "about": {
+    "eyebrow": "Our Approach",
+    "title": "More Than Property Services — We Build Value",
+    "content": "Axis Upgraders helps property owners unlock hidden potential through strategic planning, structured upgrades, and expert coordination. We focus on performance, not just maintenance."
+  },
+  "trust_strip": [
+    "STRATEGIC PLANNING",
+    "RENOVATION MANAGEMENT",
+    "ASSET OPTIMIZATION",
+    "VENDOR COORDINATION",
+    "ROI ANALYSIS"
+  ],
+  "services": {
+    "eyebrow": "Our Services",
+    "items": [
+      {
+        "title": "Renovation &\nProject Management",
+        "description": "Full oversight from planning to completion — on time, on budget.",
+        "icon": "Hammer"
+      },
+      {
+        "title": "Property Optimization\nConsulting",
+        "description": "Strategies designed to increase ROI and long-term asset value.",
+        "icon": "TrendingUp"
+      },
+      {
+        "title": "Vendor &\nMaintenance Coordination",
+        "description": "Reliable execution through a trusted network of professionals.",
+        "icon": "Network"
+      },
+      {
+        "title": "Owner\nSupport Systems",
+        "description": "Structured processes and reporting to simplify ownership.",
+        "icon": "ClipboardList"
+      }
+    ]
+  },
+  "why": {
+    "eyebrow": "Why Axis",
+    "title": "Why Property Owners Choose Axis",
+    "items": [
+      "Strategy-Driven Approach",
+      "Execution Without Stress",
+      "ROI-Focused Decisions",
+      "Trusted Vendor Network",
+      "Transparent Communication"
+    ]
+  },
+  "results": {
+    "eyebrow": "Results That Matter",
+    "items": [
+      "Increase Property Value",
+      "Improve Rental Appeal",
+      "Reduce Inefficiencies",
+      "Structured Ownership Experience"
+    ]
+  },
+  "process": {
+    "eyebrow": "Our Process",
+    "title": "A Simple, Structured Approach",
+    "steps": [
+      {
+        "title": "Consultation &\nAssessment",
+        "description": "We understand your property and goals."
+      },
+      {
+        "title": "Strategy &\nPlanning",
+        "description": "We create a tailored plan designed for maximum value."
+      },
+      {
+        "title": "Execution &\nCoordination",
+        "description": "We manage every detail with expert oversight."
+      },
+      {
+        "title": "Ongoing\nOptimization",
+        "description": "We continuously refine to improve performance."
+      }
+    ]
+  },
+  "service_area": {
+    "eyebrow": "Service Area",
+    "title": "Serving the Greater Toronto Area",
+    "content": "We work with property owners across Toronto and surrounding areas, delivering tailored solutions based on local market dynamics."
+  },
+  "cta": {
+    "title": "Ready to Elevate Your Property?",
+    "lead": "Book a consultation and discover how we can improve your property's performance and value.",
+    "primary_button_text": "Book Now",
+    "primary_button_link": "tel:4373415981",
+    "secondary_button_text": "Call 437-341-5981",
+    "secondary_button_link": "tel:4373415981"
+  },
+  "footer": {
+    "tagline": "Consult. Plan. Upgrade. Elevate.",
+    "phone": "437-341-5981",
+    "phone_link": "tel:4373415981",
+    "email": "axisupgraders@gmail.com",
+    "email_link": "mailto:axisupgraders@gmail.com",
+    "service_area": "Greater Toronto Area and surrounding areas",
+    "copyright": "© 2026 Axis Upgraders. All Rights Reserved.",
+    "disclaimer": "Axis Upgraders provides consulting, coordination, and project management services only. We do not engage in leasing, rent collection, property management, or regulated real estate activities under Ontario law."
+  }
+}

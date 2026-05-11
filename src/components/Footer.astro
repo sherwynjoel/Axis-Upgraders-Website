@@ -1,6 +1,8 @@
 ---
 import Phone from '@lucide/astro/icons/phone';
 import Mail from '@lucide/astro/icons/mail';
+import { getContent } from '../utils/content';
+const { footer } = getContent();
 ---
 <footer class="footer" id="contact">
   <div class="container">
@@ -13,7 +15,7 @@ import Mail from '@lucide/astro/icons/mail';
             <span>Upgraders</span>
           </span>
         </div>
-        <div class="footer-tagline">Consult. Plan.<br />Upgrade. Elevate.</div>
+        <div class="footer-tagline" data-key="footer.tagline" set:html={footer.tagline.replace(' ', '<br />')} />
         <div class="socials" aria-label="Social links">
           <span class="social">in</span>
           <span class="social">ig</span>
@@ -37,24 +39,25 @@ import Mail from '@lucide/astro/icons/mail';
         <div class="footer-contact">
           <span>
             <Phone aria-hidden="true" />
-            <a href="tel:4373415981">437-341-5981</a>
+            <a href={footer.phone_link} data-key="footer.phone">{footer.phone}</a>
           </span>
           <span>
             <Mail aria-hidden="true" />
-            <a href="mailto:axisupgraders@gmail.com">axisupgraders@gmail.com</a>
+            <a href={footer.email_link} data-key="footer.email">{footer.email}</a>
           </span>
         </div>
       </div>
 
       <div class="footer-col">
         <div class="footer-title">Service Area</div>
-        <div class="footer-area">Greater Toronto Area<br />and surrounding areas</div>
+        <div class="footer-area" data-key="footer.service_area" set:html={footer.service_area.replace(' Area', ' Area<br />')} />
       </div>
     </div>
 
     <div class="footer-bottom">
-      <p>&copy; 2026 Axis Upgraders. All Rights Reserved.</p>
-      <p>Axis Upgraders provides consulting, coordination, and project management services only. We do not engage in leasing, rent collection, property management, or regulated real estate activities under Ontario law.</p>
+      <p data-key="footer.copyright">{footer.copyright}</p>
+      <p data-key="footer.disclaimer">{footer.disclaimer}</p>
+      <p class="powered-by">Powered by <a href="https://thearktech.in/" target="_blank" rel="noopener">The Ark Tech</a></p>
     </div>
   </div>
 </footer>

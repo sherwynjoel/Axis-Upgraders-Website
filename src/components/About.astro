@@ -1,9 +1,11 @@
 ---
+import { getContent } from '../utils/content';
+const { about } = getContent();
 ---
 <section class="section-light positioning" id="about">
   <div class="container">
-    <p class="eyebrow center">Our Approach</p>
-    <h2>More Than Property Services &mdash;<br />We Build Value</h2>
-    <p>Axis Upgraders helps property owners unlock hidden potential through strategic planning, structured upgrades, and expert coordination. We focus on performance, not just maintenance.</p>
+    <p class="eyebrow center" data-key="about.eyebrow">{about.eyebrow}</p>
+    <h2 data-key="about.title">{about.title}</h2>
+    <p data-key="about.content">{about.content}</p>
   </div>
 </section>

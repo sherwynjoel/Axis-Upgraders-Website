@@ -1,34 +1,27 @@
 ---
 import CircleCheck from '@lucide/astro/icons/circle-check';
+import { getContent } from '../utils/content';
+const { why } = getContent();
 ---
 <section class="why" id="why-axis">
   <div class="container">
     <div class="why-grid">
-      <div class="why-image" aria-hidden="true"></div>
+      <div 
+        class="why-image" 
+        data-key="why.image" 
+        style={`background-image: linear-gradient(180deg, rgba(15,12,9,0.08), rgba(15,12,9,0.18)), url("${why.image}")`}
+        aria-hidden="true"
+      ></div>
       <div class="why-copy">
-        <p class="eyebrow">Why Axis</p>
-        <h2>Why Property Owners<br />Choose Axis</h2>
+        <p class="eyebrow" data-key="why.eyebrow">{why.eyebrow}</p>
+        <h2 data-key="why.title" set:html={why.title.replace(' ', '<br />')} />
         <ul class="why-list">
-          <li>
-            <CircleCheck aria-hidden="true" />
-            Strategy-Driven Approach
-          </li>
-          <li>
-            <CircleCheck aria-hidden="true" />
-            Execution Without Stress
-          </li>
-          <li>
-            <CircleCheck aria-hidden="true" />
-            ROI-Focused Decisions
-          </li>
-          <li>
-            <CircleCheck aria-hidden="true" />
-            Trusted Vendor Network
-          </li>
-          <li>
-            <CircleCheck aria-hidden="true" />
-            Transparent Communication
-          </li>
+          {why.items.map((item, index) => (
+            <li data-key={`why.items.${index}`}>
+              <CircleCheck aria-hidden="true" />
+              {item}
+            </li>
+          ))}
         </ul>
       </div>
     </div>

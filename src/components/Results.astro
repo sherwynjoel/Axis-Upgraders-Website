@@ -3,29 +3,26 @@ import TrendingUp from '@lucide/astro/icons/trending-up';
 import Home from '@lucide/astro/icons/house';
 import Zap from '@lucide/astro/icons/zap';
 import ShieldCheck from '@lucide/astro/icons/shield-check';
+import { getContent } from '../utils/content';
+
+const { results } = getContent();
+const iconMap = [TrendingUp, Home, Zap, ShieldCheck];
 ---
 <section class="results">
   <div class="container">
     <div class="section-head">
-      <p class="eyebrow center">Results That Matter</p>
+      <p class="eyebrow center" data-key="results.eyebrow">{results.eyebrow}</p>
     </div>
     <div class="results-grid">
-      <div class="result-item">
-        <TrendingUp aria-hidden="true" />
-        <strong>Increase<br />Property Value</strong>
-      </div>
-      <div class="result-item">
-        <Home aria-hidden="true" />
-        <strong>Improve<br />Rental Appeal</strong>
-      </div>
-      <div class="result-item">
-        <Zap aria-hidden="true" />
-        <strong>Reduce<br />Inefficiencies</strong>
-      </div>
-      <div class="result-item">
-        <ShieldCheck aria-hidden="true" />
-        <strong>Structured Ownership<br />Experience</strong>
-      </div>
+      {results.items.map((item, index) => {
+        const Icon = iconMap[index] || TrendingUp;
+        return (
+          <div class="result-item">
+            <Icon aria-hidden="true" />
+            <strong data-key={`results.items.${index}`} set:html={item.replace(' ', '<br />')} />
+          </div>
+        );
+      })}
     </div>
   </div>
 </section>

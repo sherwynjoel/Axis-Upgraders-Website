@@ -1,6 +1,9 @@
 ---
 import Nav from './Nav.astro';
 import BadgeCheck from '@lucide/astro/icons/badge-check';
+import { getContent } from '../utils/content';
+const content = getContent();
+const { hero } = content;
 ---
 <section class="hero" id="home">
   <div class="container">
@@ -8,22 +11,22 @@ import BadgeCheck from '@lucide/astro/icons/badge-check';
 
     <div class="hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow">Strategy. Execution. Elevation.</p>
-        <h1>Transform Your Property Into a High-Performance Asset</h1>
-        <p class="lead">Strategic consulting, renovation management, and property optimization for owners who want better returns and higher value.</p>
+        <p class="eyebrow" data-key="hero.eyebrow">{hero.eyebrow}</p>
+        <h1 data-key="hero.title">{hero.title}</h1>
+        <p class="lead" data-key="hero.lead">{hero.lead}</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#consult">Book Consultation <span aria-hidden="true">&rarr;</span></a>
-          <a class="btn btn-secondary" href="#about">View Services</a>
+          <a class="btn btn-primary" href={hero.cta_primary_link} data-key="hero.cta_primary_text">{hero.cta_primary_text} <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn btn-secondary" href={hero.cta_secondary_link} data-key="hero.cta_secondary_text">{hero.cta_secondary_text}</a>
         </div>
         <div class="hero-note">
           <BadgeCheck aria-hidden="true" />
-          <span>We don't manage properties. We upgrade their performance.</span>
+          <span data-key="hero.note">{hero.note}</span>
         </div>
       </div>
 
       <div class="hero-visual" aria-hidden="true">
         <div class="axis-emblem">
-          <img class="letter" src="/logo.png" alt="" />
+          <img class="letter" src={hero.logo} alt="" data-key="hero.logo" />
           <div class="name">AXIS</div>
           <div class="sub">UPGRADERS</div>
         </div>
