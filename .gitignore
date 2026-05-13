@@ -1,0 +1,7 @@
+# Admin password hash — never commit
+public/admin/.auth.php
+
+# Build / cache
+.astro/
+node_modules/
+dist/

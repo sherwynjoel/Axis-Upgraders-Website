@@ -1,5 +1,6 @@
 ---
 import ArrowUpRight from '@lucide/astro/icons/arrow-up-right';
+import Calendar from '@lucide/astro/icons/calendar';
 import { getContent } from '../utils/content';
 const { cta } = getContent();
 ---
@@ -14,7 +15,7 @@ const { cta } = getContent();
         <p data-key="cta.lead">{cta.lead}</p>
       </div>
       <div class="cta-actions">
-        <a class="btn btn-primary" href={cta.primary_button_link} data-key="cta.primary_button_text">{cta.primary_button_text} <span aria-hidden="true">&rarr;</span></a>
+        <a class="btn btn-primary" href={cta.primary_button_link} data-key="cta.primary_button_text">{cta.primary_button_text} <Calendar class="btn-icon" aria-hidden="true" /></a>
         <a class="btn btn-secondary" href={cta.secondary_button_link} data-key="cta.secondary_button_text">{cta.secondary_button_text}</a>
       </div>
     </div>

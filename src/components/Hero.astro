@@ -1,6 +1,7 @@
 ---
 import Nav from './Nav.astro';
 import BadgeCheck from '@lucide/astro/icons/badge-check';
+import Calendar from '@lucide/astro/icons/calendar';
 import { getContent } from '../utils/content';
 const content = getContent();
 const { hero } = content;
@@ -15,7 +16,7 @@ const { hero } = content;
         <h1 data-key="hero.title">{hero.title}</h1>
         <p class="lead" data-key="hero.lead">{hero.lead}</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href={hero.cta_primary_link} data-key="hero.cta_primary_text">{hero.cta_primary_text} <span aria-hidden="true">&rarr;</span></a>
+          <a class="btn btn-primary" href={hero.cta_primary_link} data-key="hero.cta_primary_text">{hero.cta_primary_text} <Calendar class="btn-icon" aria-hidden="true" /></a>
           <a class="btn btn-secondary" href={hero.cta_secondary_link} data-key="hero.cta_secondary_text">{hero.cta_secondary_text}</a>
         </div>
         <div class="hero-note">

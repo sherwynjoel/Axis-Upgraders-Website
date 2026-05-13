@@ -100,6 +100,12 @@ p { margin: 0; }
   white-space: nowrap;
 }
 
+.btn-icon {
+  width: 16px; height: 16px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
 .btn-primary {
   color: #120e08;
   background: linear-gradient(180deg, #e5cb90 0%, #ca9f55 60%, #986c2b 100%);
@@ -130,7 +136,7 @@ p { margin: 0; }
   background:
     radial-gradient(ellipse at 72% 55%, rgba(200, 162, 93, 0.11) 0%, transparent 48%),
     linear-gradient(90deg, rgba(11,9,8,0.95) 0%, rgba(11,9,8,0.9) 40%, rgba(11,9,8,0.45) 72%, rgba(11,9,8,0.28) 100%),
-    url("https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1800&q=80") center/cover;
+    url("/images/hero.jpg") center/cover;
 }
 
 .nav {
@@ -405,7 +411,11 @@ p { margin: 0; }
 .viewport-block .services .service-card:not(.c-slide) { min-height: unset; height: 100%; }
 
 /* ── 3D Carousel ── */
-.carousel-3d { position: relative; overflow: hidden; }
+/* overflow-x: clip hides the off-screen ±2 side cards horizontally
+   while keeping vertical overflow visible, so tall cards don't get
+   their tops cropped. `clip` (not `hidden`) is required to allow
+   visible on the other axis. */
+.carousel-3d { position: relative; overflow-x: clip; overflow-y: visible; }
 
 .carousel-stage {
   flex: 1;
@@ -413,7 +423,7 @@ p { margin: 0; }
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
+  min-height: 420px;
   perspective: 900px;
   perspective-origin: 50% 40%;
 }
@@ -633,7 +643,7 @@ p { margin: 0; }
   min-height: 340px;
   background:
     linear-gradient(180deg, rgba(15,12,9,0.08), rgba(15,12,9,0.18)),
-    url("https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1400&q=80") center/cover;
+    url("/images/why-axis.jpg") center/cover;
 }
 
 .why-copy { padding: clamp(28px, 4vw, 44px); }
@@ -711,8 +721,11 @@ p { margin: 0; }
   border-radius: 50%;
   background: var(--bg);
   color: var(--gold-soft);
-  font-family: "Cormorant Garamond", serif;
-  font-size: 1.3rem; font-weight: 700;
+  font-family: "Playfair Display", "Cormorant Garamond", serif;
+  font-size: 1.35rem; font-weight: 700; line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  padding-bottom: 2px;
   box-shadow: 0 0 16px rgba(200,162,93,0.3), 0 0 32px rgba(200,162,93,0.12);
 }
 
@@ -757,7 +770,7 @@ p { margin: 0; }
 .area-image {
   background:
     linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.04)),
-    url("https://images.unsplash.com/photo-1517935706615-2717063c2225?auto=format&fit=crop&w=1200&q=80") center/cover;
+    url("/images/service-area.jpg") center/cover;
 }
 
 /* ── CTA ── */
