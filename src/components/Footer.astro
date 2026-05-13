@@ -1,6 +1,7 @@
 ---
 import Phone from '@lucide/astro/icons/phone';
 import Mail from '@lucide/astro/icons/mail';
+import Instagram from '@lucide/astro/icons/instagram';
 import { getContent } from '../utils/content';
 const { footer } = getContent();
 ---
@@ -17,9 +18,9 @@ const { footer } = getContent();
         </div>
         <div class="footer-tagline" data-key="footer.tagline" set:html={footer.tagline.replace(' ', '<br />')} />
         <div class="socials" aria-label="Social links">
-          <span class="social">in</span>
-          <span class="social">ig</span>
-          <span class="social">f</span>
+          <a class="social" href="https://www.instagram.com/axisupgraders?igsh=MWxkaWt5MW0wb2c3bQ==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+            <Instagram aria-hidden="true" />
+          </a>
         </div>
       </div>
 
