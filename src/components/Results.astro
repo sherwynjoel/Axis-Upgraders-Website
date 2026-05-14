@@ -19,7 +19,7 @@ const iconMap = [TrendingUp, Home, Zap, ShieldCheck];
         return (
           <div class="result-item">
             <Icon aria-hidden="true" />
-            <strong data-key={`results.items.${index}`} set:html={item.replace(' ', '<br />')} />
+            <strong data-key={`results.items.${index}`} set:html={item.replace(/\\n|\n/g, '<br />')} />
           </div>
         );
       })}

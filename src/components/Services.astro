@@ -37,14 +37,15 @@ const iconMap = {
   Calendar, FileText, Wallet, Gauge,
   Sparkles, Award, ChartLine, ChartNoAxesCombined,
 };
+const iconEntries = Object.entries(iconMap);
 ---
 <section class="services" id="services">
   <div class="container">
     <div class="section-head">
-      <p class="eyebrow center">{services.eyebrow}</p>
+      <p class="eyebrow center" data-key="services.eyebrow">{services.eyebrow}</p>
     </div>
     <div class="carousel-3d">
-      <div class="carousel-stage">
+      <div class="carousel-stage" data-dynamic-list="services.items">
 
         {services.items.map((item, index) => {
           const Icon = iconMap[item.icon] || Hammer;
@@ -53,8 +54,8 @@ const iconMap = {
               <div class="card-icon">
                 <Icon aria-hidden="true" />
               </div>
-              <h3 data-key={`services.items.${index}.title`} set:html={item.title.replace('\n', '<br />')} />
-              <p data-key={`services.items.${index}.description`}>{item.description}</p>
+              <h3 set:html={item.title.replace(/\\n|\n/g, '<br />')} />
+              <p>{item.description}</p>
               <a class="learn" href="#consult">Learn More <span aria-hidden="true">&rarr;</span></a>
             </article>
           );
@@ -72,19 +73,54 @@ const iconMap = {
       </div>
       <div class="carousel-progress"><div class="carousel-progress-bar"></div></div>
     </div>
+
+    {/* Hidden registry of every supported icon SVG. The hydration script clones
+        the matching entry by data-icon-name when it (re)builds service cards
+        from the live JSON. */}
+    <template id="service-icons">
+      {iconEntries.map(([name, Icon]) => (
+        <span data-icon-name={name}><Icon aria-hidden="true" /></span>
+      ))}
+    </template>
   </div>
 </section>
 
 <script>
   import gsap from 'gsap';
 
-  (function () {
-    const stage = document.querySelector('.carousel-stage') as HTMLElement;
+  type PosConfig = {
+    x: string; scale: number; rotateY: number; opacity: number;
+    filter: string; zIndex: number; pointerEvents: string; cursor: string;
+    boxShadow: string;
+  };
+
+  const CONFIGS: Record<number, PosConfig> = {
+    [-2]: { x: '-158%', scale: 0.62, rotateY: 54,  opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
+    [-1]: { x: '-70%',  scale: 0.83, rotateY: 33,  opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
+    [0]:  { x: '0%',   scale: 1,    rotateY: 0,   opacity: 1,    filter: 'none',                        zIndex: 3, pointerEvents: 'auto',  cursor: 'default', boxShadow: '0 0 90px rgba(200,162,93,0.26), 0 28px 56px rgba(0,0,0,0.6)' },
+    [1]:  { x: '70%',  scale: 0.83, rotateY: -33, opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
+    [2]:  { x: '158%', scale: 0.62, rotateY: -54, opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
+  };
+
+  // Track teardown so re-init is clean.
+  let teardown: (() => void) | null = null;
+
+  function initServicesCarousel() {
+    if (teardown) { teardown(); teardown = null; }
+
+    const stage = document.querySelector('.carousel-stage') as HTMLElement | null;
     if (!stage) return;
     const slides = Array.from(stage.querySelectorAll<HTMLElement>('.c-slide'));
+    if (slides.length === 0) return;
+
+    // Clone-replace nav buttons to drop any previously attached listeners.
+    document.querySelectorAll<HTMLElement>('.carousel-prev, .carousel-next').forEach(btn => {
+      btn.replaceWith(btn.cloneNode(true));
+    });
     const prevBtn = document.querySelector('.carousel-prev') as HTMLButtonElement;
     const nextBtn = document.querySelector('.carousel-next') as HTMLButtonElement;
     const dotsContainer = document.querySelector('.carousel-dots') as HTMLElement;
+    const progressBar = document.querySelector('.carousel-progress-bar') as HTMLElement;
     const total = slides.length;
     let current = 0;
     let touchStartX = 0;
@@ -92,21 +128,6 @@ const iconMap = {
     let autoTimer: ReturnType<typeof setTimeout> | null = null;
     let progressAnim: gsap.core.Tween | null = null;
     const AUTO_DELAY = 3200;
-    const progressBar = document.querySelector('.carousel-progress-bar') as HTMLElement;
-
-    type PosConfig = {
-      x: string; scale: number; rotateY: number; opacity: number;
-      filter: string; zIndex: number; pointerEvents: string; cursor: string;
-      boxShadow: string;
-    };
-
-    const CONFIGS: Record<number, PosConfig> = {
-      [-2]: { x: '-158%', scale: 0.62, rotateY: 54,  opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
-      [-1]: { x: '-70%',  scale: 0.83, rotateY: 33,  opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
-      [0]:  { x: '0%',   scale: 1,    rotateY: 0,   opacity: 1,    filter: 'none',                        zIndex: 3, pointerEvents: 'auto',  cursor: 'default', boxShadow: '0 0 90px rgba(200,162,93,0.26), 0 28px 56px rgba(0,0,0,0.6)' },
-      [1]:  { x: '70%',  scale: 0.83, rotateY: -33, opacity: 0.65, filter: 'brightness(0.62)',            zIndex: 2, pointerEvents: 'auto',  cursor: 'pointer', boxShadow: 'none' },
-      [2]:  { x: '158%', scale: 0.62, rotateY: -54, opacity: 0.12, filter: 'blur(3px) brightness(0.38)', zIndex: 1, pointerEvents: 'none',  cursor: 'default', boxShadow: 'none' },
-    };
 
     function applyPos(slide: HTMLElement, pos: number, instant: boolean) {
       const c = CONFIGS[pos];
@@ -121,9 +142,7 @@ const iconMap = {
         gsap.to(slide, {
           x: c.x, scale: c.scale, rotateY: c.rotateY,
           opacity: c.opacity, boxShadow: c.boxShadow,
-          duration: 0.68,
-          ease: 'power3.inOut',
-          overwrite: 'auto',
+          duration: 0.68, ease: 'power3.inOut', overwrite: 'auto',
         });
         gsap.to(slide, { filter: c.filter, duration: 0.68, ease: 'power2.inOut', overwrite: 'auto' });
       }
@@ -186,11 +205,15 @@ const iconMap = {
     }
 
     const carousel3d = stage.closest('.carousel-3d') as HTMLElement;
-    carousel3d.addEventListener('mouseenter', stopAuto);
-    carousel3d.addEventListener('mouseleave', startAuto);
+    const onMouseEnter = () => stopAuto();
+    const onMouseLeave = () => startAuto();
+    carousel3d.addEventListener('mouseenter', onMouseEnter);
+    carousel3d.addEventListener('mouseleave', onMouseLeave);
 
-    prevBtn.addEventListener('click', () => { stopAuto(); goTo(current - 1); startAuto(); });
-    nextBtn.addEventListener('click', () => { stopAuto(); goTo(current + 1); startAuto(); });
+    const onPrev = () => { stopAuto(); goTo(current - 1); startAuto(); };
+    const onNext = () => { stopAuto(); goTo(current + 1); startAuto(); };
+    prevBtn.addEventListener('click', onPrev);
+    nextBtn.addEventListener('click', onNext);
 
     slides.forEach(slide => {
       slide.addEventListener('click', () => {
@@ -200,21 +223,20 @@ const iconMap = {
       });
     });
 
-    stage.addEventListener('touchstart', (e: TouchEvent) => {
-      touchStartX = e.touches[0].clientX;
-      stopAuto();
-    }, { passive: true });
-
-    stage.addEventListener('touchend', (e: TouchEvent) => {
+    const onTouchStart = (e: TouchEvent) => { touchStartX = e.touches[0].clientX; stopAuto(); };
+    const onTouchEnd = (e: TouchEvent) => {
       const diff = touchStartX - e.changedTouches[0].clientX;
       if (Math.abs(diff) > 44) goTo(diff > 0 ? current + 1 : current - 1);
       startAuto();
-    }, { passive: true });
+    };
+    stage.addEventListener('touchstart', onTouchStart, { passive: true });
+    stage.addEventListener('touchend',   onTouchEnd,   { passive: true });
 
-    document.addEventListener('keydown', (e: KeyboardEvent) => {
+    const onKeydown = (e: KeyboardEvent) => {
       if (e.key === 'ArrowLeft')  { stopAuto(); goTo(current - 1); startAuto(); }
       if (e.key === 'ArrowRight') { stopAuto(); goTo(current + 1); startAuto(); }
-    });
+    };
+    document.addEventListener('keydown', onKeydown);
 
     update(true);
     buildDots();
@@ -228,12 +250,25 @@ const iconMap = {
       const c = CONFIGS[pos];
       gsap.set(slide, { opacity: 0, y: pos === 0 ? -28 : 18 });
       entrance.to(slide, {
-        opacity: c.opacity,
-        y: 0,
-        duration: 0.7,
-        ease: 'power3.out',
+        opacity: c.opacity, y: 0,
+        duration: 0.7, ease: 'power3.out',
       }, i === 0 ? 0 : `-=0.52`);
     });
 
-  })();
+    teardown = () => {
+      stopAuto();
+      entrance.kill();
+      document.removeEventListener('keydown', onKeydown);
+      carousel3d.removeEventListener('mouseenter', onMouseEnter);
+      carousel3d.removeEventListener('mouseleave', onMouseLeave);
+      stage.removeEventListener('touchstart', onTouchStart);
+      stage.removeEventListener('touchend',   onTouchEnd);
+      // prevBtn / nextBtn listeners die with the clone-replace on next init.
+    };
+  }
+
+  // Expose so the content-hydration script can re-call after rebuilding cards.
+  (window as any).initServicesCarousel = initServicesCarousel;
+
+  initServicesCarousel();
 </script>

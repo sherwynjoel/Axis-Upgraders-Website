@@ -7,7 +7,7 @@ const { service_area } = getContent();
     <div class="area-grid">
       <div class="area-copy">
         <p class="eyebrow" data-key="service_area.eyebrow">{service_area.eyebrow}</p>
-        <h2 data-key="service_area.title" set:html={service_area.title.replace(' ', '<br />')} />
+        <h2 data-key="service_area.title" set:html={service_area.title.replace(/\\n|\n/g, '<br />')} />
       </div>
       <div class="area-text">
         <p data-key="service_area.content">{service_area.content}</p>

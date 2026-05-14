@@ -12,7 +12,7 @@ const { process } = getContent();
       {process.steps.map((step, index) => (
         <article class="step">
           <div class="step-number">{index + 1}</div>
-          <h3 data-key={`process.steps.${index}.title`} set:html={step.title.replace('\n', '<br />')} />
+          <h3 data-key={`process.steps.${index}.title`} set:html={step.title.replace(/\\n|\n/g, '<br />')} />
           <p data-key={`process.steps.${index}.description`}>{step.description}</p>
         </article>
       ))}

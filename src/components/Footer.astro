@@ -1,7 +1,7 @@
 ---
 import Phone from '@lucide/astro/icons/phone';
 import Mail from '@lucide/astro/icons/mail';
-import Instagram from '@lucide/astro/icons/instagram';
+import { Instagram } from 'lucide-astro';
 import { getContent } from '../utils/content';
 const { footer } = getContent();
 ---
@@ -16,7 +16,7 @@ const { footer } = getContent();
             <span>Upgraders</span>
           </span>
         </div>
-        <div class="footer-tagline" data-key="footer.tagline" set:html={footer.tagline.replace(' ', '<br />')} />
+        <div class="footer-tagline" data-key="footer.tagline" set:html={footer.tagline.replace(/\\n|\n/g, '<br />')} />
         <div class="socials" aria-label="Social links">
           <a class="social" href="https://www.instagram.com/axisupgraders?igsh=MWxkaWt5MW0wb2c3bQ==" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
             <Instagram aria-hidden="true" />
@@ -51,7 +51,7 @@ const { footer } = getContent();
 
       <div class="footer-col">
         <div class="footer-title">Service Area</div>
-        <div class="footer-area" data-key="footer.service_area" set:html={footer.service_area.replace(' Area', ' Area<br />')} />
+        <div class="footer-area" data-key="footer.service_area" set:html={footer.service_area.replace(/\\n|\n/g, '<br />')} />
       </div>
     </div>
 

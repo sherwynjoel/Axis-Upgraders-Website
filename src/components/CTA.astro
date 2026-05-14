@@ -11,7 +11,7 @@ const { cta } = getContent();
         <ArrowUpRight />
       </div>
       <div class="cta-copy">
-        <h2 data-key="cta.title" set:html={cta.title.replace(' ', '<br />')} />
+        <h2 data-key="cta.title" set:html={cta.title.replace(/\\n|\n/g, '<br />')} />
         <p data-key="cta.lead">{cta.lead}</p>
       </div>
       <div class="cta-actions">

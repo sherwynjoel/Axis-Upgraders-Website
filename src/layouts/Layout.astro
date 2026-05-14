@@ -9,6 +9,8 @@ const { title = 'Axis Upgraders' } = Astro.props;
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
   <title>{title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -25,6 +27,145 @@ const { title = 'Axis Upgraders' } = Astro.props;
     </defs>
   </svg>
   <slot />
+
+  <!-- Content hydration: re-read site-content.json on the client so admin edits show up without a rebuild.
+       Patches text, images, and inline-background-image URLs on any element marked with data-key. -->
+  <script is:inline>
+    (function () {
+      function getPath(obj, path) {
+        return path.split('.').reduce(function (acc, key) {
+          if (acc == null) return undefined;
+          var idx = /^\d+$/.test(key) ? parseInt(key, 10) : key;
+          return acc[idx];
+        }, obj);
+      }
+
+      function rebuildServiceCards(items) {
+        var stage = document.querySelector('.carousel-stage[data-dynamic-list="services.items"]');
+        var iconRegistry = document.getElementById('service-icons');
+        if (!stage || !iconRegistry || !Array.isArray(items)) return;
+
+        // Wipe current cards
+        stage.innerHTML = '';
+
+        items.forEach(function (item, index) {
+          var article = document.createElement('article');
+          article.className = 'service-card c-slide';
+          article.setAttribute('data-index', String(index));
+
+          // Icon: clone the matching SVG from the registry; fall back to Hammer.
+          var iconWrap = document.createElement('div');
+          iconWrap.className = 'card-icon';
+          var iconSource =
+            iconRegistry.content.querySelector('[data-icon-name="' + (item.icon || 'Hammer') + '"]') ||
+            iconRegistry.content.querySelector('[data-icon-name="Hammer"]');
+          if (iconSource) {
+            iconSource.childNodes.forEach(function (n) {
+              iconWrap.appendChild(n.cloneNode(true));
+            });
+          }
+          article.appendChild(iconWrap);
+
+          var h3 = document.createElement('h3');
+          var title = String(item.title || '');
+          if (title.indexOf('\n') !== -1 || title.indexOf('\\n') !== -1) {
+            h3.innerHTML = title
+              .replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/\\n|\n/g, '<br>');
+          } else {
+            h3.textContent = title;
+          }
+          article.appendChild(h3);
+
+          var p = document.createElement('p');
+          p.textContent = String(item.description || '');
+          article.appendChild(p);
+
+          var learn = document.createElement('a');
+          learn.className = 'learn';
+          learn.href = '#consult';
+          learn.innerHTML = 'Learn More <span aria-hidden="true">&rarr;</span>';
+          article.appendChild(learn);
+
+          stage.appendChild(article);
+        });
+
+        // Re-init the carousel against the freshly built slides.
+        if (typeof window.initServicesCarousel === 'function') {
+          window.initServicesCarousel();
+        }
+      }
+
+      fetch('/site-content.json?v=' + Date.now())
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) return;
+
+          // Rebuild any dynamic lists first so the data-key pass below can also patch
+          // anything inside the newly-rendered cards (currently nothing, but future-proof).
+          if (data.services && data.services.items) {
+            rebuildServiceCards(data.services.items);
+          }
+
+          document.querySelectorAll('[data-key]').forEach(function (el) {
+            var key = el.getAttribute('data-key');
+            var value = getPath(data, key);
+            if (value == null) return;
+
+            // <img> → src
+            if (el.tagName === 'IMG') {
+              el.src = String(value);
+              return;
+            }
+
+            // Element with inline background-image → swap the url() segment
+            var bg = el.style.backgroundImage;
+            if (bg && bg.indexOf('url(') !== -1) {
+              el.style.backgroundImage = bg.replace(/url\([^)]*\)/, 'url("' + String(value) + '")');
+              return;
+            }
+
+            var text = String(value);
+            // If the element has child elements that aren't just <br> tags (e.g. an icon next to the text),
+            // only replace the leading text node so we don't blow away the icon. <br> children come from
+            // build-time line-break injection and must be wiped, otherwise the original tail text stays in
+            // the DOM and the heading appears doubled.
+            var hasNonBrChild = false;
+            for (var k = 0; k < el.children.length; k++) {
+              if (el.children[k].tagName !== 'BR') { hasNonBrChild = true; break; }
+            }
+            if (hasNonBrChild) {
+              var firstText = null;
+              for (var i = 0; i < el.childNodes.length; i++) {
+                var n = el.childNodes[i];
+                if (n.nodeType === 3 && n.nodeValue && n.nodeValue.trim()) { firstText = n; break; }
+              }
+              if (firstText) {
+                firstText.nodeValue = text + ' ';
+              } else {
+                el.insertBefore(document.createTextNode(text + ' '), el.firstChild);
+              }
+              return;
+            }
+
+            // Pure-text element: support \n (and literal "\n" from text inputs) as line breaks.
+            if (text.indexOf('\n') !== -1 || text.indexOf('\\n') !== -1) {
+              el.innerHTML = text
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/\\n|\n/g, '<br>');
+            } else {
+              el.textContent = text;
+            }
+          });
+        })
+        .catch(function () { /* leave build-time content if fetch fails */ });
+    })();
+  </script>
 </body>
 </html>
 

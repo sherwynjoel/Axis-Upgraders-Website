@@ -1,0 +1,38 @@
+# Axis admin — server-level overrides for cPanel / shared hosting.
+# This folder is already protected by a session/password check inside index.php,
+# so we relax the server-side WAF that breaks legitimate uploads.
+
+# ── mod_security: turn it off for this folder (legacy + v2) ──
+<IfModule mod_security.c>
+    SecFilterEngine Off
+    SecFilterScanPOST Off
+</IfModule>
+<IfModule mod_security2.c>
+    SecRuleEngine Off
+</IfModule>
+
+# ── Allow larger file uploads (some hosts honour php_value in .htaccess) ──
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size       12M
+    php_value max_execution_time  60
+    php_value max_input_time      60
+</IfModule>
+<IfModule mod_php7.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size       12M
+</IfModule>
+<IfModule mod_php8.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size       12M
+</IfModule>
+
+# ── Block direct HTTP access to the password-hash file ──
+<Files ".auth.php">
+    Require all denied
+</Files>
+
+# ── Block any other dotfiles in this folder ──
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

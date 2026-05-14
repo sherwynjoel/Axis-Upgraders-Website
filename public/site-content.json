@@ -8,11 +8,11 @@
         "cta_secondary_text": "VIEW SERVICES",
         "cta_secondary_link": "#about",
         "note": "We don't manage properties. We upgrade their performance.",
-        "logo": "\/logo.png"
+        "logo": "/logo.png"
     },
     "about": {
         "eyebrow": "OUR APPROACH",
-        "title": "More Than Property Services \u2014 We Build Value",
+        "title": "More Than Property Services — We Build Value",
         "content": "Axis Upgraders helps property owners unlock hidden potential through strategic planning, structured upgrades, and expert coordination. We focus on performance, not just maintenance."
     },
     "trust_strip": [
@@ -26,22 +26,22 @@
         "eyebrow": "Our Services",
         "items": [
             {
-                "title": "Renovation &Project Management",
-                "description": "Full oversight from planning to completion \u2014 on time, on budget.",
+                "title": "Renovation &\\nProject Management",
+                "description": "Full oversight from planning to completion — on time, on budget.",
                 "icon": "Hammer"
             },
             {
-                "title": "Property OptimizationConsulting",
+                "title": "Property Optimization\\nConsulting",
                 "description": "Strategies designed to increase ROI and long-term asset value.",
                 "icon": "TrendingUp"
             },
             {
-                "title": "Vendor &Maintenance Coordination",
+                "title": "Vendor &\\nMaintenance Coordination",
                 "description": "Reliable execution through a trusted network of professionals.",
                 "icon": "Network"
             },
             {
-                "title": "OwnerSupport Systems",
+                "title": "Owner\\nSupport Systems",
                 "description": "Structured processes and reporting to simplify ownership.",
                 "icon": "ClipboardList"
             }
@@ -49,7 +49,7 @@
     },
     "why": {
         "eyebrow": "WHY AXIS",
-        "title": "Why\nProperty Owners Choose Axis",
+        "title": "Why\\nProperty Owners Choose Axis",
         "items": [
             "Strategy-Driven Approach",
             "Execution Without Stress",
@@ -57,15 +57,15 @@
             "Trusted Vendor Network",
             "Transparent Communication"
         ],
-        "image": "\/images\/why-axis.jpg"
+        "image": "/images/why-axis.jpg"
     },
     "results": {
         "eyebrow": "RESULTS THAT MATTER",
         "items": [
-            "Increase Property\nValue",
-            "Improve Rental\nAppeal",
+            "Increase Property\\nValue",
+            "Improve Rental\\nAppeal",
             "Reduce Inefficiencies",
-            "Structured Ownership\nExperience"
+            "Structured Ownership\\nExperience"
         ]
     },
     "process": {
@@ -73,31 +73,31 @@
         "title": "A Simple, Structured Approach",
         "steps": [
             {
-                "title": "Consultation &\nAssessment",
+                "title": "Consultation &\\nAssessment",
                 "description": "We understand your property and goals."
             },
             {
-                "title": "Strategy &\nPlanning",
+                "title": "Strategy &\\nPlanning",
                 "description": "We create a tailored plan designed for maximum value."
             },
             {
-                "title": "Execution &\nCoordination",
+                "title": "Execution &\\nCoordination",
                 "description": "We manage every detail with expert oversight."
             },
             {
-                "title": "Ongoing\nOptimization",
+                "title": "Ongoing\\nOptimization",
                 "description": "We continuously refine to improve performance."
             }
         ]
     },
     "service_area": {
         "eyebrow": "GEOGRAPHIC REACH",
-        "title": "Ottawa\nGatineau Area",
+        "title": "Ottawa\\nGatineau Area",
         "content": "Operating with precision and local expertise across the entire National Capital Region. Our team understands the unique challenges and opportunities in the local property market, ensuring your investments are managed with maximum insight.",
-        "image": "\/images\/service-area.jpg"
+        "image": "/images/service-area.jpg"
     },
     "cta": {
-        "title": "Ready to Elevate Your Property?",
+        "title": "Ready\\nto Elevate Your Property?",
         "lead": "Book a consultation and discover how we can improve your property's performance and value.",
         "primary_button_text": "BOOK NOW",
         "primary_button_link": "tel:4373415981",
@@ -105,13 +105,13 @@
         "secondary_button_link": "tel:4373415981"
     },
     "footer": {
-        "tagline": "Consult.\nPlan. Upgrade. Elevate.",
+        "tagline": "Consult.\\nPlan. Upgrade. Elevate.",
         "phone": "437-341-5981",
         "phone_link": "tel:4373415981",
         "email": "axisupgraders@gmail.com",
         "email_link": "mailto:axisupgraders@gmail.com",
         "service_area": "Mississauga",
-        "copyright": "\u00a9 2026 Axis Upgraders. All Rights Reserved.",
+        "copyright": "© 2026 Axis Upgraders. All Rights Reserved.",
         "disclaimer": "Axis Upgraders provides consulting, coordination, and project management services only. We do not engage in leasing, rent collection, property management, or regulated real estate activities under Ontario law."
     }
 }

@@ -14,7 +14,7 @@ const { why } = getContent();
       ></div>
       <div class="why-copy">
         <p class="eyebrow" data-key="why.eyebrow">{why.eyebrow}</p>
-        <h2 data-key="why.title" set:html={why.title.replace(' ', '<br />')} />
+        <h2 data-key="why.title" set:html={why.title.replace(/\\n|\n/g, '<br />')} />
         <ul class="why-list">
           {why.items.map((item, index) => (
             <li data-key={`why.items.${index}`}>
